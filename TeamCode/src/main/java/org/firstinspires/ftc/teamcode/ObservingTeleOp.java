@@ -11,7 +11,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class ObservingTeleOp extends OpMode {
     //Declaring outside classes
     HWC panda;
-    pandaBrain brain;
 
     private ElapsedTime runTime = new ElapsedTime();
     private ElapsedTime sleepTimer = new ElapsedTime();

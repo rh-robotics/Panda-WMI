@@ -50,45 +50,4 @@ public class RobotComponents {
         if ((target - range <= motor.getCurrentPosition()) && (target + range >= motor.getCurrentPosition())) return true;
         return false;
     }
-
-    public double armTicksUsingCoords (double x, double y) {
-        double dist = Math.sqrt(x*x + y*y);
-        double d1 = Math.toDegrees(Math.atan2(y, x));
-        double d2 = Math.toDegrees(lawOfCosines(dist, armLength, elbowLength));
-
-        double a1 = d1+d2;
-        /*
-        not confident about this but should give the encoder position correctly based on angle
-        divides by 4 because that gives the 0 degrees (90 degrees relative to the arm), multiplied by said value and added to it
-         */
-        return (ticks_per_degree * a1 + (ticks_per_rotation / 4.0));
-    }
-
-    public double armTicksUsingAngle (double a) {
-        return (ticks_per_degree * a + (ticks_per_rotation / 4.0));
-    }
-
-    public double getArmAngle () {
-        return (motor.getCurrentPosition()-(ticks_per_rotation / 4.0))/ticks_per_degree;
-    }
-
-    public double armAngleUsingCoords (double x, double y) {
-        double dist = Math.sqrt(x*x + y*y);
-        double d1 = Math.toDegrees(Math.atan2(y, x));
-        double d2 = Math.toDegrees(lawOfCosines(dist, armLength, elbowLength));
-
-        double a1 = d1+d2;
-
-        return a1;
-    }
-
-    public double elbowTicksUsingCoords (double x, double y) {
-        double dist = Math.sqrt(x*x + y*y);
-        double a2 = Math.toDegrees(lawOfCosines(armLength, elbowLength, dist));
-        return (ticks_per_degree * a2); //this definitely needs more math to account for arm movement, but I'm unsure on how
-    }
-
-    private double lawOfCosines (double a, double b, double c) { //return angle given side lengths using law of cosines
-        return Math.acos((a*a + b*b - c*c) / (2 * a * b));
-    }
 }
