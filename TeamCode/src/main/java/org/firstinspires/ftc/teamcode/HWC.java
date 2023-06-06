@@ -22,8 +22,7 @@ public class HWC {
     public Servo clawFlipper, clawWrist, claw;
     public int cameraMonitorViewId;
 
-    public RobotComponents leftLiftComponent;
-    public RobotComponents rightLiftComponent;
+    public TwinRobotComponents liftComponents;
     public RobotComponents armFlipperComponent;
 
     // CV vars
@@ -48,8 +47,7 @@ public class HWC {
         armFlipper = hardwareMap.get(DcMotorEx.class, "armFlipper");
 
         //declare all arm components with PID values, 435rpm motors have 384.5 ppr, 60rpm has 2786.2 ppr multiplied by gear ratio
-        leftLiftComponent = new RobotComponents (leftLift, 384.5, 0.005, 0.2, 0.0008, 0.07);
-        rightLiftComponent = new RobotComponents (rightLift, 384.5, 0.01, 0.21, 0.0007, 0.045);
+        liftComponents = new TwinRobotComponents (leftLift, rightLift, 384.5, 0.005, 0.2, 0.0008, 0.07);
         armFlipperComponent = new RobotComponents (armFlipper, 2786.2 * 24, 0.008, 0.0, 0.0000, 0);
 
         // Declare servos
