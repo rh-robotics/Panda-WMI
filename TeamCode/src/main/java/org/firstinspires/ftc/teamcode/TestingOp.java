@@ -8,24 +8,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 @TeleOp(name="WMI TeleOp", group="Iterative Opmode")
-public class WMITeleOp extends OpMode {
+public class TestingOp extends OpMode {
     //Declaring outside classes
     HWC panda;
-
-    int jctHeight = 3;
-
-    int liftIntakePos = 0;
-    int liftLowPos = 250;
-    int liftMedPos = 500;
-    int liftHighPos = 1000;
-    int armFlipperIntakePos = 0;
-    int armFlipperDeliveryPos = 500;
-    double clawFlipperIntakePos = 0;
-    double clawFlipperDeliveryPos = 1;
-    double clawWristIntakePos = 0;
-    double clawWristDeliveryPos = 1;
-    double clawOpenPos = 0;
-    double clawClosedPos = 1;
 
     private ElapsedTime runTime = new ElapsedTime();
     private ElapsedTime sleepTimer = new ElapsedTime();
@@ -73,46 +58,22 @@ public class WMITeleOp extends OpMode {
             panda.rightFront.setPower(0);
         }
 
-        if (gamepad1.dpad_down) {
-            jctHeight = 1;
-        } else if (gamepad1.dpad_right) {
-            jctHeight = 2;
-        } else if (gamepad1.dpad_up) {
-            jctHeight = 3;
-        }
+        if (gamepad1.dpad_right) {
 
-        if (gamepad1.x) {
-            panda.liftComponents.setTarget(liftIntakePos);
-            panda.armFlipperComponent.setTarget(armFlipperIntakePos);
-            panda.clawFlipper.setPosition(clawFlipperIntakePos);
-            panda.clawWrist.setPosition(clawWristIntakePos);
-            panda.claw.setPosition(clawOpenPos);
-        } else if (gamepad1.y) {
-            if (panda.claw.getPosition() == clawOpenPos) {
-                panda.claw.setPosition(clawClosedPos);
-            } else {
-                panda.claw.setPosition(clawOpenPos);
-            }
-        } else if (gamepad1.b) {
-            if (jctHeight == 3) {
-                panda.liftComponents.setTarget(liftHighPos);
-            } else if (jctHeight == 2) {
-                panda.liftComponents.setTarget(liftMedPos);
-            } else if (jctHeight == 1) {
-                panda.liftComponents.setTarget(liftLowPos);
-            }
-            panda.armFlipperComponent.setTarget(armFlipperDeliveryPos);
-            panda.clawFlipper.setPosition(clawFlipperDeliveryPos);
-            panda.clawWrist.setPosition(clawWristDeliveryPos);
-            panda.claw.setPosition(clawClosedPos);
         }
-
 
         //------------------------------------ GAMEPAD 2 INPUT ---------------------------------//
         /*
         this is placed AFTER cycle setting since it will override any
         power setting for stuff like intake
          */
+        if (gamepad2.left_stick_y != 0) {
+            panda.leftLift.setPower(gamepad2.left_stick_y);
+            panda.rightLift.setPower(gamepad2.left_stick_y);
+        }
+        if (gamepad2.right_stick_x != 0) {
+            panda.armFlipper.setPower(gamepad2.right_stick_x);
+        }
 
         //------------------------------------ DRIVING & MOTOR SETS ----------------------------------//
         //HWC drive pwr and calculations
@@ -125,6 +86,10 @@ public class WMITeleOp extends OpMode {
         //--------------------------------------- TELEMETRY ------------------------------------//
         telemetry.addLine();
         telemetry.addData("Loop Time w/o tmtry ", getRuntime() - currentTime);
+        telemetry.addLine();
+        telemetry.addData("Left Lift Pos", panda.leftLift.getCurrentPosition());
+        telemetry.addData("Right Lift Pos", panda.rightLift.getCurrentPosition());
+        telemetry.addData("Arm Flipper Pos", panda.armFlipper.getCurrentPosition());
         telemetry.addLine();
         telemetry.addData("Loop Time w/tmtry ", getRuntime() - currentTime);
         //telemetry.addData("Positions", "front Arm %d, Back Arm %d, Front Elbow %d, Back Elbow %d", panda.frontArm.getCurrentPosition(), panda.backArm.getCurrentPosition(), panda.frontElbow.getCurrentPosition(), panda.backElbow.getCurrentPosition());

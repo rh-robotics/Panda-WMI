@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-public class RobotComponentsMod {
+public class TwinRobotComponents {
 
     private final DcMotorEx motorL;
     private final DcMotorEx motorR;
@@ -13,7 +13,7 @@ public class RobotComponentsMod {
     private final PIDController controller;
     private double target;
 
-    RobotComponentsMod(DcMotorEx motorL, DcMotorEx motorR, double ticks_per_rotation, double p, double i, double d, double f) {
+    TwinRobotComponents(DcMotorEx motorL, DcMotorEx motorR, double ticks_per_rotation, double p, double i, double d, double f) {
         this.motorL = motorL;
         this.motorR = motorR;
         this.ticks_per_rotation = ticks_per_rotation;
@@ -28,8 +28,7 @@ public class RobotComponentsMod {
 
     public double getTarget() {return target;}
     public void setTarget(double newTarget) {target = newTarget;}
-    public void incrementTarget(double increment) {target+=increment;
-    moveUsingPID();}
+    public void incrementTarget(double increment) {target+=increment;}
 
     public void moveUsingPID() {
 
@@ -47,7 +46,7 @@ public class RobotComponentsMod {
     }
 
     public boolean motorCloseEnough(int range) {
-        if ((target - range <= motor.getCurrentPosition()) && (target + range >= motor.getCurrentPosition())) return true;
+        if ((target - range <= (motorL.getCurrentPosition() + motorR.getCurrentPosition())/2) && (target + range >= (motorL.getCurrentPosition() + motorR.getCurrentPosition())/2)) return true;
         return false;
     }
 }
