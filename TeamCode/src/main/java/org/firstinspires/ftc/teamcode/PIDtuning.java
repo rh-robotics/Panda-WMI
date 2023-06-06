@@ -31,10 +31,10 @@ public class PIDtuning extends OpMode {
         arm_motor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
         name = "back elbow";
-        bronto.frontArm.setDirection(DcMotorEx.Direction.FORWARD);
-        bronto.frontElbow.setDirection(DcMotorEx.Direction.REVERSE);
-        bronto.backElbow.setDirection(DcMotorEx.Direction.FORWARD);
-        bronto.backArm.setDirection(DcMotorEx.Direction.REVERSE);
+//        bronto.frontArm.setDirection(DcMotorEx.Direction.FORWARD);
+//        bronto.frontElbow.setDirection(DcMotorEx.Direction.REVERSE);
+//        bronto.backElbow.setDirection(DcMotorEx.Direction.FORWARD);
+//        bronto.backArm.setDirection(DcMotorEx.Direction.REVERSE);
 
 
     }

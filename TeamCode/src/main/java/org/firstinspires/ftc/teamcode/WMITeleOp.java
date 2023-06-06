@@ -46,6 +46,10 @@ public class WMITeleOp extends OpMode {
         panda.rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         panda.armFlipper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        //set mode
+        panda.leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        panda.rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        panda.armFlipper.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         //set driving motor directions
         panda.leftFront.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -55,7 +59,7 @@ public class WMITeleOp extends OpMode {
 
         //set arm motor directions
         panda.leftLift.setDirection(DcMotorSimple.Direction.FORWARD);
-        panda.rightLift.setDirection(DcMotorSimple.Direction.FORWARD);
+        panda.rightLift.setDirection(DcMotorSimple.Direction.REVERSE);
         panda.armFlipper.setDirection(DcMotorSimple.Direction.FORWARD);
 
         telemetry.addData("Status: ", "Initialized");

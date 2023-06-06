@@ -7,13 +7,18 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@TeleOp(name="WMI TeleOp", group="Iterative Opmode")
+@TeleOp(name="Testing Op", group="Iterative Opmode")
 public class TestingOp extends OpMode {
     //Declaring outside classes
     HWC panda;
 
     private ElapsedTime runTime = new ElapsedTime();
     private ElapsedTime sleepTimer = new ElapsedTime();
+
+    //targets
+    double clawFlipperTarget = 1;
+    double clawWristTarget = 0;
+    double clawTarget = 0;
 
     @Override
     public void init() {
@@ -26,6 +31,11 @@ public class TestingOp extends OpMode {
         panda.rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         panda.armFlipper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        //set mode
+        panda.leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        panda.rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        panda.armFlipper.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
 
         //set driving motor directions
         panda.leftFront.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -35,7 +45,7 @@ public class TestingOp extends OpMode {
 
         //set arm motor directions
         panda.leftLift.setDirection(DcMotorSimple.Direction.FORWARD);
-        panda.rightLift.setDirection(DcMotorSimple.Direction.FORWARD);
+        panda.rightLift.setDirection(DcMotorSimple.Direction.REVERSE);
         panda.armFlipper.setDirection(DcMotorSimple.Direction.FORWARD);
 
         telemetry.addData("Status: ", "Initialized");
@@ -59,7 +69,17 @@ public class TestingOp extends OpMode {
         }
 
         if (gamepad1.dpad_right) {
-
+            clawFlipperTarget += .01;
+        } else if (gamepad1.dpad_left) {
+            clawFlipperTarget -= .01;
+        } else if (gamepad1.dpad_up) {
+            clawWristTarget += .01;
+        } else if (gamepad1.dpad_down) {
+            clawWristTarget -= .01;
+        } else if (gamepad1.right_bumper) {
+            clawTarget += .01;
+        } else if (gamepad1.left_bumper) {
+            clawTarget -= .01;
         }
 
         //------------------------------------ GAMEPAD 2 INPUT ---------------------------------//
@@ -71,6 +91,7 @@ public class TestingOp extends OpMode {
             panda.leftLift.setPower(gamepad2.left_stick_y);
             panda.rightLift.setPower(gamepad2.left_stick_y);
         }
+
         if (gamepad2.right_stick_x != 0) {
             panda.armFlipper.setPower(gamepad2.right_stick_x);
         }
@@ -80,8 +101,13 @@ public class TestingOp extends OpMode {
         panda.manualDrive(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_trigger);
 
         //motor pid
-        panda.liftComponents.moveUsingPID();
-        panda.armFlipperComponent.moveUsingPID();
+//        panda.liftComponents.moveUsingPID();
+//        panda.armFlipperComponent.moveUsingPID();
+
+        //servos set
+        panda.clawFlipper.setPosition(clawFlipperTarget);
+        panda.clawWrist.setPosition(clawWristTarget);
+        panda.claw.setPosition(clawTarget);
 
         //--------------------------------------- TELEMETRY ------------------------------------//
         telemetry.addLine();
@@ -89,7 +115,14 @@ public class TestingOp extends OpMode {
         telemetry.addLine();
         telemetry.addData("Left Lift Pos", panda.leftLift.getCurrentPosition());
         telemetry.addData("Right Lift Pos", panda.rightLift.getCurrentPosition());
+        telemetry.addLine();
+        telemetry.addData("Left Lift Power", panda.leftLift.getPower());
+        telemetry.addData("Right Lift Power", panda.rightLift.getPower());
         telemetry.addData("Arm Flipper Pos", panda.armFlipper.getCurrentPosition());
+        telemetry.addLine();
+        telemetry.addData("Claw Flipper Pos", panda.clawFlipper.getPosition());
+        telemetry.addData("Claw Wrist Pos", panda.clawWrist.getPosition());
+        telemetry.addData("Claw Pos", panda.claw.getPosition());
         telemetry.addLine();
         telemetry.addData("Loop Time w/tmtry ", getRuntime() - currentTime);
         //telemetry.addData("Positions", "front Arm %d, Back Arm %d, Front Elbow %d, Back Elbow %d", panda.frontArm.getCurrentPosition(), panda.backArm.getCurrentPosition(), panda.frontElbow.getCurrentPosition(), panda.backElbow.getCurrentPosition());
