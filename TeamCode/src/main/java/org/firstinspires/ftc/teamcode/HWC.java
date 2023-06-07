@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -19,7 +20,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 public class HWC {
     // Declare empty variables for robot hardware
     public DcMotorEx leftFront, rightFront, leftBack, rightBack, leftLift, rightLift, armFlipper;
-    public Servo clawFlipper, clawWrist, claw;
+    public CRServo clawFlipper;
+    public Servo clawWrist, claw;
     public int cameraMonitorViewId;
 
     public TwinRobotComponents liftComponents;
@@ -51,7 +53,7 @@ public class HWC {
         armFlipperComponent = new RobotComponents (armFlipper, 2786.2 * 24, 0.008, 0.0, 0.0000, 0);
 
         // Declare servos
-        clawFlipper = hardwareMap.get(Servo.class, "clawFlipper");
+        clawFlipper = hardwareMap.get(CRServo.class, "clawFlipper");
         clawWrist = hardwareMap.get(Servo.class, "clawWrist");
         claw = hardwareMap.get(Servo.class, "claw");
 
@@ -77,7 +79,7 @@ public class HWC {
 
         // Set CRServo Directions
         claw.setPosition(0.25);
-        clawFlipper.setPosition(0);
+        clawFlipper.setPower(0);
         clawWrist.setPosition(0.0);
 
         // Run motors using encoder, so that we can move accurately. If motor doesn't have, run without encoder

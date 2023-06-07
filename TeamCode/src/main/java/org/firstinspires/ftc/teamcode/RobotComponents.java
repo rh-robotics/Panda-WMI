@@ -10,8 +10,6 @@ public class RobotComponents {
     private final double ticks_per_degree;
     private final double F;
     private final PIDController controller;
-    private final double armLength = 38.4; //cm, random atm TODO: check arm lengths
-    private final double elbowLength = 19.2; //cm
     private double target;
 
     RobotComponents (DcMotorEx motor, double ticks_per_rotation, double p, double i, double d, double f) {
@@ -25,8 +23,6 @@ public class RobotComponents {
     }
 
     public double getTicksPerDegree () {return ticks_per_degree;}
-    public double getArmLength () {return armLength;}
-    public double getElbowLength() {return elbowLength;}
 
     public double getTarget() {return target;}
     public void setTarget(double newTarget) {target = newTarget;}

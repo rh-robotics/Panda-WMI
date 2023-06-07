@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 
 @TeleOp(name="WMI TeleOp", group="Iterative Opmode")
@@ -21,19 +22,23 @@ public class WMITeleOp extends OpMode {
     int armFlipperIntakePos = 0;
     int armFlipperDeliveryPos = 500;
     double clawFlipperIntakePos = 0;
-    double clawFlipperDeliveryPos = 1;
+    double clawFlipperDunkTime = .5;
+    double clawFlipperReverseDunkTime = 1;
+    double clawFlipperDunkCompleteTime = 2;
+    boolean dunking = false;
     double clawWristIntakePos = 0;
     double clawWristDeliveryPos = 1;
     double clawOpenPos = 0;
     double clawClosedPos = 1;
 
     //targets
-    double clawFlipperTarget = 0;
+    double clawFlipperPwr = 0;
     double clawWristTarget = 0;
     double clawTarget = 0;
 
     private ElapsedTime runTime = new ElapsedTime();
     private ElapsedTime sleepTimer = new ElapsedTime();
+    double dunkStartTime;
 
     @Override
     public void init() {
@@ -69,7 +74,8 @@ public class WMITeleOp extends OpMode {
     public void start() {runTime.reset();}
     @Override
     public void loop() {
-        double currentTime = getRuntime();
+        double currentTime = getRuntime(); //save time at beginning of loop
+
         //------------------------------------ GAMEPAD 1 INPUT ----------------------------------//
 
         if (gamepad1.left_bumper && gamepad1.right_bumper) {
@@ -90,19 +96,19 @@ public class WMITeleOp extends OpMode {
             jctHeight = 3;
         }
 
-        if (gamepad1.x) {
+        if (gamepad1.x) { //pressing x to return to intake pos
             panda.liftComponents.setTarget(liftIntakePos);
             panda.armFlipperComponent.setTarget(armFlipperIntakePos);
-            clawFlipperTarget = clawFlipperIntakePos;
+            clawFlipperPwr = clawFlipperIntakePos;
             clawWristTarget = clawWristIntakePos;
             clawTarget = clawOpenPos;
-        } else if (gamepad1.y) {
+        } else if (gamepad1.y) { //pressing Y to toggle claw open or close
             if (panda.claw.getPosition() == clawOpenPos) {
                 panda.claw.setPosition(clawClosedPos);
             } else {
                 panda.claw.setPosition(clawOpenPos);
             }
-        } else if (gamepad1.b) {
+        } else if (gamepad1.b) { //pressing B for delivery position, jct height dependent
             if (jctHeight == 3) {
                 panda.liftComponents.setTarget(liftHighPos);
             } else if (jctHeight == 2) {
@@ -111,9 +117,27 @@ public class WMITeleOp extends OpMode {
                 panda.liftComponents.setTarget(liftLowPos);
             }
             panda.armFlipperComponent.setTarget(armFlipperDeliveryPos);
-            clawFlipperTarget = clawFlipperDeliveryPos;
             clawWristTarget = clawWristDeliveryPos;
             clawTarget = clawClosedPos;
+        } else if (gamepad1.a) {
+            dunkStartTime = getRuntime();
+            dunking = true;
+            clawFlipperPwr = 1; //pwr claw flipper to move down
+        }
+
+        //gamepad A (dunking) functionality
+        //if dunking, checks for time elapsed from greatest to least for order
+        if (dunking) {
+            double elapsed = getRuntime() - dunkStartTime;
+            if (elapsed > clawFlipperDunkCompleteTime) {
+                clawFlipperPwr = 0; //turn off claw flipper, complete
+                dunking = false; //no longer dunking, reset
+            } else if (elapsed > clawFlipperReverseDunkTime) {
+                clawFlipperPwr = -1; //return claw
+            } else if (elapsed > clawFlipperDunkTime){
+                clawFlipperPwr = 0; //make claw flipper loose
+                clawTarget = clawOpenPos; //open claw to drop
+            }
         }
 
 
@@ -137,8 +161,12 @@ public class WMITeleOp extends OpMode {
         panda.liftComponents.moveUsingPID();
         panda.armFlipperComponent.moveUsingPID();
 
-        //servos set
-        panda.clawFlipper.setPosition(clawFlipperTarget);
+        //clip servo range then set pwrs and positions
+        clawFlipperPwr = Range.clip(clawFlipperPwr,-1, 1);
+        clawWristTarget = Range.clip(clawWristTarget,0, 1);
+        clawTarget = Range.clip(clawTarget,0, 1);
+
+        panda.clawFlipper.setPower(clawFlipperPwr);
         panda.clawWrist.setPosition(clawWristTarget);
         panda.claw.setPosition(clawTarget);
 
@@ -149,6 +177,13 @@ public class WMITeleOp extends OpMode {
         telemetry.addData("Left Lift Pos", panda.leftLift.getCurrentPosition());
         telemetry.addData("Right Lift Pos", panda.rightLift.getCurrentPosition());
         telemetry.addData("Arm Flipper Pos", panda.armFlipper.getCurrentPosition());
+        telemetry.addLine();
+        telemetry.addData("Left Lift Power", panda.leftLift.getPower());
+        telemetry.addData("Right Lift Power", panda.rightLift.getPower());
+        telemetry.addLine();
+        telemetry.addData("Claw Flipper Pos", panda.clawFlipper.getPower());
+        telemetry.addData("Claw Wrist Pos", panda.clawWrist.getPosition());
+        telemetry.addData("Claw Pos", panda.claw.getPosition());
         telemetry.addLine();
         telemetry.addData("Loop Time w/tmtry ", getRuntime() - currentTime);
         //telemetry.addData("Positions", "front Arm %d, Back Arm %d, Front Elbow %d, Back Elbow %d", panda.frontArm.getCurrentPosition(), panda.backArm.getCurrentPosition(), panda.frontElbow.getCurrentPosition(), panda.backElbow.getCurrentPosition());

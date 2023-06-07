@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 
 @TeleOp(name="Testing Op", group="Iterative Opmode")
@@ -16,7 +17,7 @@ public class TestingOp extends OpMode {
     private ElapsedTime sleepTimer = new ElapsedTime();
 
     //targets
-    double clawFlipperTarget = 1;
+    double clawFlipperPwr = 1;
     double clawWristTarget = 0;
     double clawTarget = 0;
 
@@ -68,18 +69,20 @@ public class TestingOp extends OpMode {
             panda.rightFront.setPower(0);
         }
 
+        clawFlipperPwr = 0; //reset flipper pwr before setting it
+
         if (gamepad1.dpad_right) {
-            clawFlipperTarget += .01;
+            clawTarget += .01;
         } else if (gamepad1.dpad_left) {
-            clawFlipperTarget -= .01;
+            clawTarget -= .01;
         } else if (gamepad1.dpad_up) {
             clawWristTarget += .01;
         } else if (gamepad1.dpad_down) {
             clawWristTarget -= .01;
         } else if (gamepad1.right_bumper) {
-            clawTarget += .01;
+            clawFlipperPwr = 1;
         } else if (gamepad1.left_bumper) {
-            clawTarget -= .01;
+            clawFlipperPwr = -1;
         }
 
         //------------------------------------ GAMEPAD 2 INPUT ---------------------------------//
@@ -100,12 +103,12 @@ public class TestingOp extends OpMode {
         //HWC drive pwr and calculations
         panda.manualDrive(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.right_trigger);
 
-        //motor pid
-//        panda.liftComponents.moveUsingPID();
-//        panda.armFlipperComponent.moveUsingPID();
-
         //servos set
-        panda.clawFlipper.setPosition(clawFlipperTarget);
+        clawFlipperPwr = Range.clip(clawFlipperPwr,-1, 1);
+        clawWristTarget = Range.clip(clawWristTarget,0, 1);
+        clawTarget = Range.clip(clawTarget,0, 1);
+
+        panda.clawFlipper.setPower(clawFlipperPwr);
         panda.clawWrist.setPosition(clawWristTarget);
         panda.claw.setPosition(clawTarget);
 
@@ -115,12 +118,12 @@ public class TestingOp extends OpMode {
         telemetry.addLine();
         telemetry.addData("Left Lift Pos", panda.leftLift.getCurrentPosition());
         telemetry.addData("Right Lift Pos", panda.rightLift.getCurrentPosition());
+        telemetry.addData("Arm Flipper Pos", panda.armFlipper.getCurrentPosition());
         telemetry.addLine();
         telemetry.addData("Left Lift Power", panda.leftLift.getPower());
         telemetry.addData("Right Lift Power", panda.rightLift.getPower());
-        telemetry.addData("Arm Flipper Pos", panda.armFlipper.getCurrentPosition());
         telemetry.addLine();
-        telemetry.addData("Claw Flipper Pos", panda.clawFlipper.getPosition());
+        telemetry.addData("Claw Flipper Pos", panda.clawFlipper.getPower());
         telemetry.addData("Claw Wrist Pos", panda.clawWrist.getPosition());
         telemetry.addData("Claw Pos", panda.claw.getPosition());
         telemetry.addLine();
