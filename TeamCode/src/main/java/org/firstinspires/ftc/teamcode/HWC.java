@@ -49,8 +49,8 @@ public class HWC {
         armFlipper = hardwareMap.get(DcMotorEx.class, "armFlipper");
 
         //declare all arm components with PID values, 435rpm motors have 384.5 ppr, 60rpm has 2786.2 ppr multiplied by gear ratio
-        liftComponents = new TwinRobotComponents (leftLift, rightLift, 384.5, 0.005, 0.2, 0.0008, 0.07);
-        armFlipperComponent = new RobotComponents (armFlipper, 2786.2 * 24, 0.008, 0.0, 0.0000, 0);
+        liftComponents = new TwinRobotComponents (leftLift, rightLift, 384.5, 0.01, 0.4, 0.0005, 0.0);
+        armFlipperComponent = new RobotComponents (armFlipper, 2786.2 * (16.0/10.0), 0.005, 0.1, 0.0005, 0.0);
 
         // Declare servos
         clawFlipper = hardwareMap.get(CRServo.class, "clawFlipper");

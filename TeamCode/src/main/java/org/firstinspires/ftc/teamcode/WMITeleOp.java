@@ -16,20 +16,21 @@ public class WMITeleOp extends OpMode {
     int jctHeight = 3;
 
     int liftIntakePos = 0;
-    int liftLowPos = 250;
-    int liftMedPos = 500;
-    int liftHighPos = 1000;
+    int liftLowPos = liftIntakePos;
+    int liftMedPos = 1100;
+    int liftHighPos = 2000;
     int armFlipperIntakePos = 0;
-    int armFlipperDeliveryPos = 500;
+    int armFlipperLowPos = -1100;
+    int armFlipperDeliveryPos = -2400;
     double clawFlipperIntakePos = 0;
-    double clawFlipperDunkTime = .5;
+    double clawFlipperDunkTime = .3;
     double clawFlipperReverseDunkTime = 1;
-    double clawFlipperDunkCompleteTime = 2;
+    double clawFlipperDunkCompleteTime = 2.5;
     boolean dunking = false;
     double clawWristIntakePos = 0;
-    double clawWristDeliveryPos = 1;
-    double clawOpenPos = 0;
-    double clawClosedPos = 1;
+    double clawWristDeliveryPos = .68;
+    double clawOpenPos = 0.0;
+    double clawClosedPos = 1.0;
 
     //targets
     double clawFlipperPwr = 0;
@@ -103,26 +104,26 @@ public class WMITeleOp extends OpMode {
             clawWristTarget = clawWristIntakePos;
             clawTarget = clawOpenPos;
         } else if (gamepad1.y) { //pressing Y to toggle claw open or close
-            if (panda.claw.getPosition() == clawOpenPos) {
-                panda.claw.setPosition(clawClosedPos);
-            } else {
-                panda.claw.setPosition(clawOpenPos);
-            }
+            clawTarget = clawClosedPos;
         } else if (gamepad1.b) { //pressing B for delivery position, jct height dependent
-            if (jctHeight == 3) {
-                panda.liftComponents.setTarget(liftHighPos);
-            } else if (jctHeight == 2) {
-                panda.liftComponents.setTarget(liftMedPos);
-            } else if (jctHeight == 1) {
+            if (jctHeight == 1) {
+                panda.armFlipperComponent.setTarget(armFlipperLowPos);
                 panda.liftComponents.setTarget(liftLowPos);
+                clawWristTarget = clawWristIntakePos; //not moving, just straight
+            } else {
+                if (jctHeight == 3) {
+                    panda.liftComponents.setTarget(liftHighPos);
+                } else if (jctHeight == 2) {
+                    panda.liftComponents.setTarget(liftMedPos);
+                }
+                panda.armFlipperComponent.setTarget(armFlipperDeliveryPos);
+                clawWristTarget = clawWristDeliveryPos;
             }
-            panda.armFlipperComponent.setTarget(armFlipperDeliveryPos);
-            clawWristTarget = clawWristDeliveryPos;
             clawTarget = clawClosedPos;
         } else if (gamepad1.a) {
             dunkStartTime = getRuntime();
             dunking = true;
-            clawFlipperPwr = 1; //pwr claw flipper to move down
+            clawFlipperPwr = -1; //pwr claw flipper to move down
         }
 
         //gamepad A (dunking) functionality
@@ -133,7 +134,7 @@ public class WMITeleOp extends OpMode {
                 clawFlipperPwr = 0; //turn off claw flipper, complete
                 dunking = false; //no longer dunking, reset
             } else if (elapsed > clawFlipperReverseDunkTime) {
-                clawFlipperPwr = -1; //return claw
+                clawFlipperPwr = 1; //return claw
             } else if (elapsed > clawFlipperDunkTime){
                 clawFlipperPwr = 0; //make claw flipper loose
                 clawTarget = clawOpenPos; //open claw to drop
