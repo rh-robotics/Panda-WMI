@@ -83,10 +83,10 @@ public class HWC {
         clawWrist.setPosition(0.0);
 
         // Run motors using encoder, so that we can move accurately. If motor doesn't have, run without encoder
-        leftFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        rightFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        leftBack.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        rightBack.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        leftFront.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        rightFront.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        leftBack.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        rightBack.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         // Resets encoder position to zero
         armFlipper.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         leftLift.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -120,10 +120,11 @@ public class HWC {
             rightBPwr = Range.clip(drive - turn, -1.0, 1.0);
         } else if (strafe != 0) {
             /* Strafing */
-            leftFPwr = -strafe;
-            rightFPwr = strafe;
+            //clipping b/c panda
+            leftFPwr = Range.clip(-strafe, -.4,.5);
+            rightFPwr = Range.clip(strafe, -.5,.4);
             leftBPwr = strafe;
-            rightBPwr = -strafe;
+            rightBPwr = Range.clip(-strafe, -.55,.55);
         } else {
             leftFPwr = 0;
             rightFPwr = 0;

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -43,6 +44,11 @@ public class TestingOp extends OpMode {
         panda.leftBack.setDirection(DcMotorSimple.Direction.FORWARD);
         panda.rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
         panda.rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
+        // Run motors using encoder, so that we can move accurately. If motor doesn't have, run without encoder
+        panda.leftFront.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        panda.rightFront.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        panda.leftBack.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        panda.rightBack.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
         //set arm motor directions
         panda.leftLift.setDirection(DcMotorSimple.Direction.FORWARD);

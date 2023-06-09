@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -62,6 +63,11 @@ public class WMITeleOp extends OpMode {
         panda.leftBack.setDirection(DcMotorSimple.Direction.FORWARD);
         panda.rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
         panda.rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
+        // Run motors using encoder, so that we can move accurately. If motor doesn't have, run without encoder
+        panda.leftFront.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        panda.rightFront.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        panda.leftBack.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        panda.rightBack.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
         //set arm motor directions
         panda.leftLift.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -87,7 +93,11 @@ public class WMITeleOp extends OpMode {
             panda.leftBack.setPower(0);
             panda.leftFront.setPower(0);
             panda.rightFront.setPower(0);
+
+            panda.clawFlipper.setPower(0);
         }
+        //reset clawflipper pwr
+        clawFlipperPwr = 0;
 
         if (gamepad1.dpad_down) {
             jctHeight = 1;
@@ -148,10 +158,23 @@ public class WMITeleOp extends OpMode {
         power setting for stuff like intake
          */
         if (gamepad2.left_stick_y != 0) {
-            panda.liftComponents.incrementTarget(gamepad2.left_stick_y);
+            panda.liftComponents.incrementTarget(-10* gamepad2.left_stick_y);
         }
         if (gamepad2.right_stick_x != 0) {
-            panda.armFlipperComponent.incrementTarget(gamepad2.right_stick_x);
+            panda.armFlipperComponent.incrementTarget(-10* gamepad2.right_stick_x);
+        }
+        if (gamepad1.dpad_right) {
+            clawTarget += .05;
+        } else if (gamepad1.dpad_left) {
+            clawTarget -= .05;
+        } else if (gamepad1.dpad_up) {
+            clawWristTarget += .05;
+        } else if (gamepad1.dpad_down) {
+            clawWristTarget -= .05;
+        } else if (gamepad1.right_bumper) {
+            clawFlipperPwr = 1;
+        } else if (gamepad1.left_bumper) {
+            clawFlipperPwr = -1;
         }
 
         //------------------------------------ DRIVING & MOTOR SETS ----------------------------------//
@@ -185,6 +208,16 @@ public class WMITeleOp extends OpMode {
         telemetry.addData("Claw Flipper Pos", panda.clawFlipper.getPower());
         telemetry.addData("Claw Wrist Pos", panda.clawWrist.getPosition());
         telemetry.addData("Claw Pos", panda.claw.getPosition());
+        telemetry.addLine();
+        telemetry.addData("Front Left Wheel Pwr", panda.leftFront.getPower());
+        telemetry.addData("Front Right Wheel Pwr", panda.rightFront.getPower());
+        telemetry.addData("Back Left Wheel Pwr", panda.leftBack.getPower());
+        telemetry.addData("Back Right Wheel Pwr", panda.rightBack.getPower());
+        telemetry.addLine();
+        telemetry.addData("Front Left Wheel Pwr", panda.leftFront.getVelocity());
+        telemetry.addData("Front Right Wheel Pwr", panda.rightFront.getVelocity());
+        telemetry.addData("Back Left Wheel Pwr", panda.leftBack.getVelocity());
+        telemetry.addData("Back Right Wheel Pwr", panda.rightBack.getVelocity());
         telemetry.addLine();
         telemetry.addData("Loop Time w/tmtry ", getRuntime() - currentTime);
         //telemetry.addData("Positions", "front Arm %d, Back Arm %d, Front Elbow %d, Back Elbow %d", panda.frontArm.getCurrentPosition(), panda.backArm.getCurrentPosition(), panda.frontElbow.getCurrentPosition(), panda.backElbow.getCurrentPosition());
