@@ -107,6 +107,12 @@ public class WMITeleOp extends OpMode {
             jctHeight = 3;
         }
 
+        if (gamepad1.left_bumper) {
+            clawTarget = clawClosedPos;
+        } else if (gamepad1.right_bumper) {
+            clawTarget = clawOpenPos;
+        }
+
         if (gamepad1.x) { //pressing x to return to intake pos
             panda.liftComponents.setTarget(liftIntakePos);
             panda.armFlipperComponent.setTarget(armFlipperIntakePos);
@@ -163,18 +169,18 @@ public class WMITeleOp extends OpMode {
         if (gamepad2.right_stick_x != 0) {
             panda.armFlipperComponent.incrementTarget(-10* gamepad2.right_stick_x);
         }
-        if (gamepad1.dpad_right) {
+        if (gamepad2.right_bumper) {
             clawTarget += .05;
-        } else if (gamepad1.dpad_left) {
+        } else if (gamepad2.left_bumper) {
             clawTarget -= .05;
-        } else if (gamepad1.dpad_up) {
+        } else if (gamepad2.dpad_right) {
             clawWristTarget += .05;
-        } else if (gamepad1.dpad_down) {
+        } else if (gamepad2.dpad_left) {
             clawWristTarget -= .05;
-        } else if (gamepad1.right_bumper) {
-            clawFlipperPwr = 1;
-        } else if (gamepad1.left_bumper) {
-            clawFlipperPwr = -1;
+        } else if (gamepad2.right_trigger != 0) {
+            clawFlipperPwr = gamepad2.right_trigger;
+        } else if (gamepad2.left_trigger != 0) {
+            clawFlipperPwr = -gamepad2.left_trigger;
         }
 
         //------------------------------------ DRIVING & MOTOR SETS ----------------------------------//
