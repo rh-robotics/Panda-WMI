@@ -21,26 +21,32 @@ public class WMITeleOp extends OpMode {
     int liftMedPos = 1100;
     int liftHighPos = 2000;
     int armFlipperIntakePos = 0;
-    int armFlipperLowPos = -1100;
+    int armFlipperLowPos = -1200;
     int armFlipperDeliveryPos = -2400;
-    double clawFlipperIntakePos = 0;
+    double clawFlipperIntakeHoldPwr = -1;
+    double clawFlipperIntakeDownPwr = 1;
+    //double clawFlipperIntakeHoldTime = 1.5;
+    double clawFlipperIntakeDownTime = .5;
     double clawFlipperDunkTime = .3;
     double clawFlipperReverseDunkTime = 1;
     double clawFlipperDunkCompleteTime = 2.5;
     boolean dunking = false;
+    boolean intaking = false;
+    boolean descending = false;
     double clawWristIntakePos = 0;
     double clawWristDeliveryPos = .68;
-    double clawOpenPos = 0.0;
-    double clawClosedPos = 1.0;
+    double clawOpenPos = 0.25;
+    double clawClosedPos = 0.65;
 
     //targets
     double clawFlipperPwr = 0;
     double clawWristTarget = 0;
-    double clawTarget = 0;
+    double clawTarget = clawClosedPos;
 
     private ElapsedTime runTime = new ElapsedTime();
     private ElapsedTime sleepTimer = new ElapsedTime();
     double dunkStartTime;
+    double descentStartTime;
 
     @Override
     public void init() {
@@ -99,11 +105,11 @@ public class WMITeleOp extends OpMode {
         //reset clawflipper pwr
         clawFlipperPwr = 0;
 
-        if (gamepad1.dpad_down) {
+        if (gamepad2.dpad_down) {
             jctHeight = 1;
-        } else if (gamepad1.dpad_right) {
+        } else if (gamepad2.dpad_right) {
             jctHeight = 2;
-        } else if (gamepad1.dpad_up) {
+        } else if (gamepad2.dpad_up) {
             jctHeight = 3;
         }
 
@@ -113,15 +119,16 @@ public class WMITeleOp extends OpMode {
             clawTarget = clawOpenPos;
         }
 
-        if (gamepad1.x) { //pressing x to return to intake pos
+        if (gamepad1.x || gamepad2.x) { //pressing x to return to intake pos
             panda.liftComponents.setTarget(liftIntakePos);
             panda.armFlipperComponent.setTarget(armFlipperIntakePos);
-            clawFlipperPwr = clawFlipperIntakePos;
+            clawFlipperPwr = clawFlipperIntakeHoldPwr;
             clawWristTarget = clawWristIntakePos;
-            clawTarget = clawOpenPos;
-        } else if (gamepad1.y) { //pressing Y to toggle claw open or close
+            //intakeStartTime = getRuntime();
+            intaking = true;
+        } else if (gamepad1.y || gamepad2.b) { //pressing Y to toggle claw open or close, evan preference
             clawTarget = clawClosedPos;
-        } else if (gamepad1.b) { //pressing B for delivery position, jct height dependent
+        } else if (gamepad1.b || gamepad2.y) { //pressing B for delivery position, jct height dependent
             if (jctHeight == 1) {
                 panda.armFlipperComponent.setTarget(armFlipperLowPos);
                 panda.liftComponents.setTarget(liftLowPos);
@@ -136,7 +143,7 @@ public class WMITeleOp extends OpMode {
                 clawWristTarget = clawWristDeliveryPos;
             }
             clawTarget = clawClosedPos;
-        } else if (gamepad1.a) {
+        } else if (gamepad1.a || gamepad2.a) {
             dunkStartTime = getRuntime();
             dunking = true;
             clawFlipperPwr = -1; //pwr claw flipper to move down
@@ -154,6 +161,42 @@ public class WMITeleOp extends OpMode {
             } else if (elapsed > clawFlipperDunkTime){
                 clawFlipperPwr = 0; //make claw flipper loose
                 clawTarget = clawOpenPos; //open claw to drop
+            } else {
+                clawFlipperPwr = -1;
+            }
+        }
+
+        /*
+        if (intaking && panda.armFlipperComponent.motorCloseEnough(100)) {
+            double elapsed = getRuntime() - intakeStartTime;
+            if (elapsed > clawFlipperIntakeDownTime) {
+                clawFlipperPwr = 0;
+                intaking = false;
+            } else if (elapsed > clawFlipperIntakeHoldTime) {
+                clawTarget = clawOpenPos;
+                clawFlipperPwr = clawFlipperIntakeDownPwr;
+            } else {
+                clawFlipperPwr = clawFlipperIntakeHoldPwr;
+            }
+        }
+         */
+        if (intaking) {
+            if (panda.armFlipperComponent.motorCloseEnough(100)) {
+                clawFlipperPwr = clawFlipperIntakeDownPwr;
+                clawTarget = clawOpenPos;
+                intaking = false;
+                descending = true;
+                descentStartTime = getRuntime();
+            } else {
+                clawFlipperPwr = clawFlipperIntakeHoldPwr;
+            }
+        }
+        if (descending) {
+            if (getRuntime() - descentStartTime > clawFlipperIntakeDownTime) {
+                descending = false;
+                clawFlipperPwr = 0;
+            } else {
+                clawFlipperPwr = clawFlipperIntakeDownPwr;
             }
         }
 
@@ -173,9 +216,9 @@ public class WMITeleOp extends OpMode {
             clawTarget += .05;
         } else if (gamepad2.left_bumper) {
             clawTarget -= .05;
-        } else if (gamepad2.dpad_right) {
+        } else if (gamepad1.dpad_right) {
             clawWristTarget += .05;
-        } else if (gamepad2.dpad_left) {
+        } else if (gamepad1.dpad_left) {
             clawWristTarget -= .05;
         } else if (gamepad2.right_trigger != 0) {
             clawFlipperPwr = gamepad2.right_trigger;
