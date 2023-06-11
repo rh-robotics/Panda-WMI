@@ -22,7 +22,7 @@ public class WMITeleOp extends OpMode {
     int liftHighPos = 2000;
     int armFlipperIntakePos = 0;
     int armFlipperLowPos = -1200;
-    int armFlipperDeliveryPos = -2400;
+    int armFlipperDeliveryPos = -2700;
     double clawFlipperIntakeHoldPwr = -1;
     double clawFlipperIntakeDownPwr = 1;
     //double clawFlipperIntakeHoldTime = 1.5;
@@ -113,17 +113,18 @@ public class WMITeleOp extends OpMode {
             jctHeight = 3;
         }
 
-        if (gamepad1.left_bumper) {
+        if (gamepad1.left_bumper || gamepad2.right_bumper) {
             clawTarget = clawClosedPos;
-        } else if (gamepad1.right_bumper) {
+        } else if (gamepad1.right_bumper || gamepad2.left_bumper) {
             clawTarget = clawOpenPos;
         }
 
-        if (gamepad1.x || gamepad2.x) { //pressing x to return to intake pos
+        if ((gamepad1.x || gamepad2.x) && !dunking){ //pressing x to return to intake pos
             panda.liftComponents.setTarget(liftIntakePos);
             panda.armFlipperComponent.setTarget(armFlipperIntakePos);
             clawFlipperPwr = clawFlipperIntakeHoldPwr;
             clawWristTarget = clawWristIntakePos;
+            clawTarget = clawClosedPos;
             //intakeStartTime = getRuntime();
             intaking = true;
         } else if (gamepad1.y || gamepad2.b) { //pressing Y to toggle claw open or close, evan preference
@@ -180,7 +181,7 @@ public class WMITeleOp extends OpMode {
             }
         }
          */
-        if (intaking) {
+        if (intaking && !dunking) {
             if (panda.armFlipperComponent.motorCloseEnough(100)) {
                 clawFlipperPwr = clawFlipperIntakeDownPwr;
                 clawTarget = clawOpenPos;
@@ -191,7 +192,7 @@ public class WMITeleOp extends OpMode {
                 clawFlipperPwr = clawFlipperIntakeHoldPwr;
             }
         }
-        if (descending) {
+        if (descending && !dunking) {
             if (getRuntime() - descentStartTime > clawFlipperIntakeDownTime) {
                 descending = false;
                 clawFlipperPwr = 0;
@@ -207,10 +208,14 @@ public class WMITeleOp extends OpMode {
         power setting for stuff like intake
          */
         if (gamepad2.left_stick_y != 0) {
-            panda.liftComponents.incrementTarget(-10* gamepad2.left_stick_y);
+            if (gamepad2.left_stick_y > 0) { //this is actually down
+                panda.liftComponents.incrementTarget(-15* gamepad2.left_stick_y);
+            } else {
+                panda.liftComponents.incrementTarget(-50* gamepad2.left_stick_y);
+            }
         }
         if (gamepad2.right_stick_x != 0) {
-            panda.armFlipperComponent.incrementTarget(-10* gamepad2.right_stick_x);
+            panda.armFlipperComponent.incrementTarget(-25* gamepad2.right_stick_x);
         }
         if (gamepad2.right_bumper) {
             clawTarget += .05;
@@ -224,6 +229,13 @@ public class WMITeleOp extends OpMode {
             clawFlipperPwr = gamepad2.right_trigger;
         } else if (gamepad2.left_trigger != 0) {
             clawFlipperPwr = -gamepad2.left_trigger;
+        }
+
+        if (gamepad2.back) {
+            panda.armFlipper.setPower(0);
+            panda.armFlipper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        } else {
+            panda.armFlipper.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
 
         //------------------------------------ DRIVING & MOTOR SETS ----------------------------------//

@@ -1,13 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-
-@TeleOp(name="Wheel Testing Op", group="Iterative Opmode")
+//@TeleOp(name="Wheel Testing Op", group="Iterative Opmode")
 public class WheelTestingOp extends OpMode {
     //Declaring outside classes
     HWC panda;
